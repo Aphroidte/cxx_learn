@@ -14,6 +14,7 @@
   - [3. 线程的同步](#3-线程的同步)
     - [3.1. std::mutex](#31-stdmutex)
     - [3.2. std::atomic](#32-stdatomic)
+      - [3.2.1. 原子类型支持的原子操作](#321-原子类型支持的原子操作)
   - [4. this_thread命令空间](#4-this_thread命令空间)
 
 <!-- /TOC -->
@@ -140,6 +141,49 @@ int main() {
 
 ### 3.2. std::atomic
 
+*C++11* 在 \<atomic\> 头文件中引入了原子操作类型，如下表所示：
+
+| 原子操作类型 | 对应的内置类型 |
+| :----------- | :----------- |
+| atomic_flag | |
+| atomic_bool | bool |
+| atomic_char | char |
+| atomic_schar | signed char |
+| atomic_uchar | unsigned char |
+| atomic_short | short |
+| atomic_ushort | unsigned short |
+| atomic_int | int |
+| atomic_uint | unsigned int |
+| atomic_long | long |
+| atomic_ulong | unsigned long |
+| atomic_llong | long long |
+| atomic_ullong | unsigned long long |
+| atomic_char16_t | char16_t |
+| atomic_char32_t | char32_t |
+| atomic_wchar_t | wchar_t |
+
+当我们去看这些类型的定义时会发现，起始它们都是用 `atomic<T>` 模板来定义的。例如 `std::atomic_llong` 就是用 `std::atomic<long long>` 来定义的。
+
+> 注：**原子操作是平台相关的**，原子类型能够实现原子操作是因为C++11对原子类型的操作进行了抽象，定义了统一的接口，并**要求编译器产生平台相关的原子操作的具体实现**。
+
+#### 3.2.1. 原子类型支持的原子操作
+
+| 操作 | atomic_flag | atomic_bool | atomic_integral-type | atomic\<bool\> | atomic<T*> | atomic\<integral-type\> | atomic\<class-type\> |
+| :----| :----------| :----------- | :------------------- | :------------- | :---------- | :----------------------- | :------------------- |
+| test_and_set | Y | | | | | | |
+| clear | Y | | | | | | |
+| is_lock_free | | Y | Y | Y | Y | Y | Y |
+| load | | Y | Y | Y | Y | Y | Y |
+| store | | Y | Y | Y | Y | Y | Y |
+| exchange | | Y | Y | Y | Y | Y | Y |
+| compare_exchange_weak +strong | | Y | Y | Y | Y | Y | Y |
+| fetch_add, += | | | Y | | Y | Y | |
+| fetch_sub, -= | | | Y | | Y | Y | |
+| fetch_or, \|= | | Y | | | Y | | |
+| fetch_and, &= | | | Y | | | Y | |
+| fetch_oxr, ^= | | | Y | | | Y | |
+| ++, -- | | | Y | | Y | Y | Y |
+
 ## 4. this_thread命令空间
 
 `<thread>` 头文件下不仅定义了 *thread* 类，还提供了一个 *this_thread* 命令空间，此空间提供了一些功能实用的函数，如下表所示：
@@ -150,3 +194,6 @@ int main() {
 | yield() | 阻塞当前线程，直至条件成熟 |
 | sleep_until() | 阻塞当前线程，直至某个时间点为止 |
 | sleep_for() | 阻塞当前线程的时间（例如阻塞5秒）|
+
+[//]:参考资料
+[//]:[深入理解C++11笔记：原子类型与原子操作](https://blog.csdn.net/WizardtoH/article/details/81111549)
